@@ -5,9 +5,9 @@ import Controls from "./components/Controls";
 import Uploaders from "./components/Uploaders";
 import DiffTree from "./components/DiffTree";
 import Summary from "./components/Summary";
-import type { DiffNode } from "../lib/diff/types";
-import { diffObjects } from "../lib/diff/diff";
-import { buildPatch } from "../lib/diff/patch";
+import type { DiffNode } from "@/lib/diff/types";
+import { diffObjects } from "@/lib/diff/diff";
+import { buildPatch } from "@/lib/diff/patch";
 
 export default function Page() {
   const [left, setLeft] = useState<any>(null);
@@ -15,7 +15,6 @@ export default function Page() {
   const [showOnlyDiff, setShowOnlyDiff] = useState(false);
   const [epsilon, setEpsilon] = useState(1e-9);
   const [keySort, setKeySort] = useState(false);
-  const [query, setQuery] = useState("");
 
   const root = useMemo<DiffNode | null>(() => {
     if (left === null || right === null) return null;
@@ -42,8 +41,6 @@ export default function Page() {
       <Uploaders onLeft={setLeft} onRight={setRight} />
 
       <Controls
-        query={query}
-        onQuery={setQuery}
         showOnlyDiff={showOnlyDiff}
         onToggleOnlyDiff={() => setShowOnlyDiff((v) => !v)}
         epsilon={epsilon}
@@ -53,13 +50,12 @@ export default function Page() {
         onReset={() => {
           setLeft(null);
           setRight(null);
-          setQuery("");
         }}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <section className="lg:col-span-3">
-          <DiffTree root={root} showOnlyDiff={showOnlyDiff} query={query} />
+          <DiffTree root={root} showOnlyDiff={showOnlyDiff} />
         </section>
         <aside className="lg:col-span-1">
           <Summary root={root} patch={patch} />
