@@ -270,7 +270,7 @@ export default function Uploaders({
             <button
               type="button"
               onClick={() => setShowGuide(true)}
-              className="btn-slate ml-auto"
+              className="btn-zinc ml-auto"
               title="取得が有効な外部API"
             >
               取得が有効な外部API

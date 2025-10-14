@@ -54,11 +54,11 @@
 }
 
 /* 外部APIガイドボタン */
-.btn-slate {
-  @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs text-white bg-slate-600 hover:bg-slate-700 border-transparent shadow-sm;
+.btn-zinc {
+  @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs text-white bg-zinc-500 hover:bg-zinc-600 border-transparent shadow-sm;
 }
 
-.btn-slate:disabled {
+.btn-zinc:disabled {
   @apply opacity-60 cursor-not-allowed;
 }
 
