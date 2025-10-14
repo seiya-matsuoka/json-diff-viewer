@@ -1,6 +1,16 @@
 "use client";
 
-import type { DiffNode } from "../../lib/diff/types";
+import type { DiffNode } from "@/lib/diff/types";
+
+function stringifyShort(v: unknown, max = 60) {
+  try {
+    const s = JSON.stringify(v);
+    return s.length > max ? s.slice(0, max - 1) + "…" : s;
+  } catch {
+    const s = String(v);
+    return s.length > max ? s.slice(0, max - 1) + "…" : s;
+  }
+}
 
 function Row({ n }: { n: DiffNode }) {
   const badgeClass =
@@ -12,10 +22,41 @@ function Row({ n }: { n: DiffNode }) {
           ? "badge badge-changed"
           : "badge badge-equal";
 
+  const info =
+    n.state === "changed"
+      ? `${stringifyShort((n as any).left)} → ${stringifyShort((n as any).right)}`
+      : n.state === "added"
+        ? `→ ${stringifyShort((n as any).right)}`
+        : n.state === "removed"
+          ? `${stringifyShort((n as any).left)} →`
+          : "";
+
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(n.path);
+    } catch {
+      return;
+    }
+  };
+
   return (
-    <div className="grid grid-cols-[120px_1fr] gap-2 border-b py-1">
+    <div className="grid grid-cols-[110px_1fr_auto] items-center gap-2 border-b px-2 py-1 hover:bg-slate-50">
       <span className={badgeClass}>{n.state}</span>
-      <div className="break-all font-mono text-xs">{n.path}</div>
+      <div className="min-w-0">
+        <div className="break-all font-mono text-xs">{n.path}</div>
+        {info && (
+          <div className="mt-0.5 break-all text-[11px] text-slate-600">
+            {info}
+          </div>
+        )}
+      </div>
+      <button
+        className="rounded-md border px-2 py-1 text-xs"
+        title="パスをコピー"
+        onClick={onCopy}
+      >
+        Copy
+      </button>
     </div>
   );
 }
@@ -23,11 +64,9 @@ function Row({ n }: { n: DiffNode }) {
 export default function DiffTree({
   root,
   showOnlyDiff,
-  query,
 }: {
   root: DiffNode | null;
   showOnlyDiff: boolean;
-  query: string;
 }) {
   if (!root)
     return (
@@ -35,6 +74,7 @@ export default function DiffTree({
         左/右にJSONを入れてください。
       </div>
     );
+
   const flat: DiffNode[] = [];
   const walk = (n: DiffNode) => {
     flat.push(n);
@@ -44,7 +84,6 @@ export default function DiffTree({
 
   const filtered = flat.filter((n) => {
     if (showOnlyDiff && n.state === "equal") return false;
-    if (query && !n.path.includes(query)) return false;
     return true;
   });
 
