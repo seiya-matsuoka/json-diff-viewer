@@ -53,7 +53,7 @@ function Panel({
   };
 
   const fetchFromUrl = async () => {
-    if (!s.url) return;
+    if (!s.url || s.loading) return;
     setS((p) => ({ ...p, loading: true, fetchError: null }));
     try {
       const res = await fetch(`/api/proxy?url=${encodeURIComponent(s.url)}`);
@@ -67,6 +67,7 @@ function Panel({
         text: t,
         loading: false,
         fetchError: null,
+        parseError: null,
         lastLoadedUrl: s.url,
       }));
     } catch (e: any) {
@@ -102,12 +103,14 @@ function Panel({
           className="flex-1 rounded-md border px-2 py-1.5 text-xs"
           placeholder="https://example.com/data.json"
           value={s.url}
-          onChange={(e) => setS((p) => ({ ...p, url: e.target.value }))}
+          onChange={(e) =>
+            setS((p) => ({ ...p, url: e.target.value, fetchError: null }))
+          }
         />
         <button
           className="rounded-md border px-2 py-1.5 text-xs"
           onClick={fetchFromUrl}
-          disabled={s.loading}
+          disabled={!s.url || s.loading}
         >
           {s.loading ? "取得中…" : "URL取得"}
         </button>
@@ -124,7 +127,9 @@ function Panel({
       <textarea
         className="h-48 w-full rounded-md border p-2 font-mono text-xs"
         value={s.text}
-        onChange={(e) => setS((p) => ({ ...p, text: e.target.value }))}
+        onChange={(e) =>
+          setS((p) => ({ ...p, text: e.target.value, parseError: null }))
+        }
         placeholder='{"a":1}'
       />
 
