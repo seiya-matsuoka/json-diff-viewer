@@ -2,12 +2,153 @@
 
 import { useState } from "react";
 
-function safeParse(text: string) {
+type ParseResult<T> = { data: T | null; error: string | null };
+
+function safeParse<T = any>(text: string): ParseResult<T> {
   try {
-    return JSON.parse(text);
-  } catch {
-    return null;
+    return { data: JSON.parse(text), error: null };
+  } catch (e: any) {
+    return {
+      data: null,
+      error: e?.message ? String(e.message) : "JSON の解析に失敗しました",
+    };
   }
+}
+
+type PanelState = {
+  text: string;
+  url: string;
+  loading: boolean;
+  parseError: string | null;
+  fetchError: string | null;
+  lastLoadedUrl: string | null;
+};
+
+function Panel({
+  label,
+  testFile,
+  onApply,
+}: {
+  label: string;
+  testFile: string;
+  onApply: (v: any) => void;
+}) {
+  const [s, setS] = useState<PanelState>({
+    text: "",
+    url: "",
+    loading: false,
+    parseError: null,
+    fetchError: null,
+    lastLoadedUrl: null,
+  });
+
+  const loadSample = async () => {
+    try {
+      const res = await fetch(testFile);
+      const t = await res.text();
+      setS((p) => ({ ...p, text: t, parseError: null }));
+    } catch {
+      setS((p) => ({ ...p, fetchError: "サンプルの取得に失敗しました" }));
+    }
+  };
+
+  const fetchFromUrl = async () => {
+    if (!s.url) return;
+    setS((p) => ({ ...p, loading: true, fetchError: null }));
+    try {
+      const res = await fetch(`/api/proxy?url=${encodeURIComponent(s.url)}`);
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(msg || `取得に失敗しました (HTTP ${res.status})`);
+      }
+      const t = await res.text();
+      setS((p) => ({
+        ...p,
+        text: t,
+        loading: false,
+        fetchError: null,
+        lastLoadedUrl: s.url,
+      }));
+    } catch (e: any) {
+      setS((p) => ({
+        ...p,
+        loading: false,
+        fetchError: e?.message ? String(e.message) : "取得に失敗しました",
+      }));
+    }
+  };
+
+  const apply = () => {
+    const { data, error } = safeParse(s.text);
+    if (error) {
+      setS((p) => ({ ...p, parseError: error }));
+      return;
+    }
+    setS((p) => ({ ...p, parseError: null }));
+    onApply(data);
+  };
+
+  return (
+    <div className="rounded-2xl bg-white p-3 shadow">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-sm font-medium">{label}</span>
+        <button className="text-xs underline" onClick={loadSample}>
+          サンプル読込
+        </button>
+      </div>
+
+      <div className="mb-2 flex gap-2">
+        <input
+          className="flex-1 rounded-md border px-2 py-1.5 text-xs"
+          placeholder="https://example.com/data.json"
+          value={s.url}
+          onChange={(e) => setS((p) => ({ ...p, url: e.target.value }))}
+        />
+        <button
+          className="rounded-md border px-2 py-1.5 text-xs"
+          onClick={fetchFromUrl}
+          disabled={s.loading}
+        >
+          {s.loading ? "取得中…" : "URL取得"}
+        </button>
+      </div>
+      {s.lastLoadedUrl && (
+        <div className="mb-1 break-all text-[11px] text-slate-500">
+          取得元: {s.lastLoadedUrl}
+        </div>
+      )}
+      {s.fetchError && (
+        <div className="mb-1 text-[11px] text-red-600">{s.fetchError}</div>
+      )}
+
+      <textarea
+        className="h-48 w-full rounded-md border p-2 font-mono text-xs"
+        value={s.text}
+        onChange={(e) => setS((p) => ({ ...p, text: e.target.value }))}
+        placeholder='{"a":1}'
+      />
+
+      {s.parseError && (
+        <div className="mt-1 text-[11px] text-red-600">{s.parseError}</div>
+      )}
+
+      <div className="mt-2 flex gap-2">
+        <button className="rounded-md border px-3 py-1.5" onClick={apply}>
+          反映
+        </button>
+        <input
+          type="file"
+          accept=".json,application/json"
+          onChange={async (e) => {
+            const f = e.target.files?.[0];
+            if (!f) return;
+            const t = await f.text();
+            setS((p) => ({ ...p, text: t, parseError: null }));
+          }}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function Uploaders({
@@ -17,66 +158,18 @@ export default function Uploaders({
   onLeft: (v: any) => void;
   onRight: (v: any) => void;
 }) {
-  const [lText, setLText] = useState("");
-  const [rText, setRText] = useState("");
-
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      {[
-        {
-          label: "左JSON",
-          text: lText,
-          set: setLText,
-          on: onLeft,
-          testFile: "/samples/01_basic_add_remove/left.json",
-        },
-        {
-          label: "右JSON",
-          text: rText,
-          set: setRText,
-          on: onRight,
-          testFile: "/samples/01_basic_add_remove/right.json",
-        },
-      ].map(({ label, text, set, on, testFile }) => (
-        <div key={label} className="rounded-2xl bg-white p-3 shadow">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">{label}</span>
-            <button
-              className="text-xs underline"
-              onClick={async () => {
-                const res = await fetch(testFile);
-                set(await res.text());
-              }}
-            >
-              サンプル読込
-            </button>
-          </div>
-          <textarea
-            className="h-48 w-full rounded-md border p-2 font-mono text-xs"
-            value={text}
-            onChange={(e) => set(e.target.value)}
-            placeholder='{"a":1}'
-          />
-          <div className="mt-2 flex gap-2">
-            <button
-              className="rounded-md border px-3 py-1.5"
-              onClick={() => on(safeParse(text))}
-            >
-              反映
-            </button>
-            <input
-              type="file"
-              accept=".json"
-              onChange={async (e) => {
-                const f = e.target.files?.[0];
-                if (!f) return;
-                const t = await f.text();
-                set(t);
-              }}
-            />
-          </div>
-        </div>
-      ))}
+      <Panel
+        label="左JSON"
+        testFile="/samples/01_basic_add_remove/left.json"
+        onApply={onLeft}
+      />
+      <Panel
+        label="右JSON"
+        testFile="/samples/01_basic_add_remove/right.json"
+        onApply={onRight}
+      />
     </div>
   );
 }
