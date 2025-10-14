@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import ApiGuide from "./ApiGuide";
 
 type ParseResult<T> = { data: T | null; error: string | null };
-
 function safeParse<T = any>(text: string): ParseResult<T> {
   try {
     return { data: JSON.parse(text), error: null };
@@ -28,10 +28,12 @@ function Panel({
   label,
   testFile,
   onApply,
+  fillUrl,
 }: {
   label: string;
   testFile: string;
   onApply: (v: any) => void;
+  fillUrl?: string | null;
 }) {
   const [s, setS] = useState<PanelState>({
     text: "",
@@ -41,6 +43,10 @@ function Panel({
     fetchError: null,
     lastLoadedUrl: null,
   });
+
+  useEffect(() => {
+    if (fillUrl) setS((p) => ({ ...p, url: fillUrl, fetchError: null }));
+  }, [fillUrl]);
 
   const loadSample = async () => {
     try {
@@ -163,18 +169,65 @@ export default function Uploaders({
   onLeft: (v: any) => void;
   onRight: (v: any) => void;
 }) {
+  // ガイドの有無だけチェック
+  const hasGuide = useMemo(() => {
+    try {
+      const sRaw = process.env.NEXT_PUBLIC_API_SAMPLES ?? "[]";
+      const pRaw = process.env.NEXT_PUBLIC_API_PAIRS ?? "[]";
+      const s = JSON.parse(sRaw);
+      const p = JSON.parse(pRaw);
+      return (
+        (Array.isArray(s) && s.length > 0) || (Array.isArray(p) && p.length > 0)
+      );
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const [showGuide, setShowGuide] = useState(false);
+  const [fillLeftUrl, setFillLeftUrl] = useState<string | null>(null);
+  const [fillRightUrl, setFillRightUrl] = useState<string | null>(null);
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <Panel
-        label="左JSON"
-        testFile="/samples/01_basic_add_remove/left.json"
-        onApply={onLeft}
+    <>
+      {hasGuide && (
+        <div className="mb-2 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setShowGuide(true)}
+            className="rounded-md border px-2 py-1 text-xs text-slate-600 hover:text-slate-900"
+            title="取得が有効な外部API"
+          >
+            取得が有効な外部API
+          </button>
+        </div>
+      )}
+
+      <ApiGuide
+        open={showGuide}
+        onClose={() => setShowGuide(false)}
+        onSetLeft={(url) => setFillLeftUrl(url)}
+        onSetRight={(url) => setFillRightUrl(url)}
+        onSetBoth={(left, right) => {
+          setFillLeftUrl(left);
+          setFillRightUrl(right);
+        }}
       />
-      <Panel
-        label="右JSON"
-        testFile="/samples/01_basic_add_remove/right.json"
-        onApply={onRight}
-      />
-    </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Panel
+          label="左JSON"
+          testFile="/samples/01_basic_add_remove/left.json"
+          onApply={onLeft}
+          fillUrl={fillLeftUrl}
+        />
+        <Panel
+          label="右JSON"
+          testFile="/samples/01_basic_add_remove/right.json"
+          onApply={onRight}
+          fillUrl={fillRightUrl}
+        />
+      </div>
+    </>
   );
 }
