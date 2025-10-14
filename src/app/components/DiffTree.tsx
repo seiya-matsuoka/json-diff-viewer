@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+import type { JSX } from "react";
 import type { DiffNode } from "@/lib/diff/types";
 
 function stringifyShort(v: unknown, max = 60) {
@@ -12,38 +14,84 @@ function stringifyShort(v: unknown, max = 60) {
   }
 }
 
-function Row({ n }: { n: DiffNode }) {
-  const badgeClass =
-    n.state === "added"
+function hasChildren(n: DiffNode) {
+  return Array.isArray(n.children) && n.children.length > 0;
+}
+
+function isValueNode(n: DiffNode) {
+  return n.type === "value";
+}
+
+function Badge({ state }: { state: DiffNode["state"] }) {
+  const cls =
+    state === "added"
       ? "badge badge-added"
-      : n.state === "removed"
+      : state === "removed"
         ? "badge badge-removed"
-        : n.state === "changed"
+        : state === "changed"
           ? "badge badge-changed"
           : "badge badge-equal";
+  return <span className={cls}>{state}</span>;
+}
 
-  const isValue = n.type === "value";
+function Caret({
+  expanded,
+  onToggle,
+  visible,
+}: {
+  expanded: boolean;
+  onToggle: () => void;
+  visible: boolean;
+}) {
+  if (!visible) return <span className="inline-block w-4" />;
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="inline-flex w-4 items-center justify-center text-slate-600 hover:text-slate-900"
+      aria-label={expanded ? "折りたたむ" : "展開する"}
+      title={expanded ? "折りたたむ" : "展開する"}
+    >
+      <span className="text-xs leading-none">{expanded ? "▼" : "▶"}</span>
+    </button>
+  );
+}
 
+function Row({
+  n,
+  depth,
+  expanded,
+  onToggle,
+}: {
+  n: DiffNode;
+  depth: number;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
   const info =
-    isValue && n.state === "changed"
+    isValueNode(n) && n.state === "changed"
       ? `${stringifyShort((n as any).left)} → ${stringifyShort((n as any).right)}`
-      : isValue && n.state === "added"
+      : isValueNode(n) && n.state === "added"
         ? `→ ${stringifyShort((n as any).right)}`
-        : isValue && n.state === "removed"
+        : isValueNode(n) && n.state === "removed"
           ? `${stringifyShort((n as any).left)} →`
           : "";
 
-  const onCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(n.path);
-    } catch {
-      return;
-    }
-  };
+  const onCopy = async () =>
+    navigator.clipboard.writeText(n.path).catch(() => void 0);
 
   return (
-    <div className="grid grid-cols-[110px_1fr_auto] items-center gap-2 border-b px-2 py-1 hover:bg-slate-50">
-      <span className={badgeClass}>{n.state}</span>
+    <div className="grid grid-cols-[18px_110px_1fr_auto] items-center gap-2 border-b px-2 py-1 hover:bg-slate-50">
+      <div style={{ paddingLeft: depth * 12 }}>
+        <Caret
+          visible={hasChildren(n)}
+          expanded={expanded}
+          onToggle={onToggle}
+        />
+      </div>
+
+      <Badge state={n.state} />
+
       <div className="min-w-0">
         <div className="break-all font-mono text-xs">{n.path}</div>
         {info && (
@@ -52,6 +100,7 @@ function Row({ n }: { n: DiffNode }) {
           </div>
         )}
       </div>
+
       <button
         className="rounded-md border px-2 py-1 text-xs"
         title="パスをコピー"
@@ -70,30 +119,94 @@ export default function DiffTree({
   root: DiffNode | null;
   showOnlyDiff: boolean;
 }) {
-  if (!root)
-    return (
-      <div className="text-sm text-slate-500">
-        左/右にJSONを入れてください。
-      </div>
+  const allPaths = useMemo(() => {
+    if (!root) return [];
+    const acc: string[] = [];
+    const walk = (n: DiffNode) => {
+      acc.push(n.path);
+      n.children?.forEach(walk);
+    };
+    walk(root);
+    return acc;
+  }, [root]);
+
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!root) {
+      setExpanded({});
+      return;
+    }
+    const init: Record<string, boolean> = {};
+    const walk = (n: DiffNode) => {
+      if (hasChildren(n)) init[n.path] = true;
+      n.children?.forEach(walk);
+    };
+    walk(root);
+    setExpanded(init);
+  }, [root]);
+
+  const toggle = (path: string) =>
+    setExpanded((prev) => ({ ...prev, [path]: !prev[path] }));
+
+  const setAll = (open: boolean) =>
+    setExpanded((prev) => {
+      const next: Record<string, boolean> = { ...prev };
+      for (const p of allPaths) next[p] = open;
+      return next;
+    });
+
+  const renderNode = (n: DiffNode, depth: number): JSX.Element[] => {
+    if (showOnlyDiff && n.state === "equal") return [];
+    const rows: JSX.Element[] = [];
+    const isOpen = expanded[n.path] ?? false;
+    rows.push(
+      <Row
+        key={n.path}
+        n={n}
+        depth={depth}
+        expanded={isOpen}
+        onToggle={() => hasChildren(n) && toggle(n.path)}
+      />,
     );
-
-  const flat: DiffNode[] = [];
-  const walk = (n: DiffNode) => {
-    flat.push(n);
-    n.children?.forEach(walk);
+    if (hasChildren(n) && isOpen) {
+      for (const child of n.children!) {
+        rows.push(...renderNode(child, depth + 1));
+      }
+    }
+    return rows;
   };
-  walk(root);
-
-  const filtered = flat.filter((n) => {
-    if (showOnlyDiff && n.state === "equal") return false;
-    return true;
-  });
 
   return (
-    <div className="divide-y rounded-2xl bg-white shadow">
-      {filtered.map((n, i) => (
-        <Row key={n.path + ":" + i} n={n} />
-      ))}
+    <div className="rounded-2xl bg-white shadow">
+      <div className="flex items-center justify-end gap-2 border-b p-2">
+        <button
+          className="rounded-md border px-2 py-1 text-xs"
+          onClick={() => setAll(true)}
+          title="すべて展開"
+          disabled={!root}
+        >
+          すべて展開
+        </button>
+        <button
+          className="rounded-md border px-2 py-1 text-xs"
+          onClick={() => setAll(false)}
+          title="すべて折りたたみ"
+          disabled={!root}
+        >
+          すべて折りたたみ
+        </button>
+      </div>
+
+      <div className="divide-y">
+        {root ? (
+          renderNode(root, 0)
+        ) : (
+          <div className="p-3 text-sm text-slate-500">
+            左/右にJSONを入れてください。
+          </div>
+        )}
+      </div>
     </div>
   );
 }
