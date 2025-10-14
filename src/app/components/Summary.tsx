@@ -55,6 +55,13 @@ export default function Summary({
   };
   walk(root);
 
+  const diffs = collectDiffs(root);
+  const canDownloadDiffs = diffs.length > 0;
+  const canDownloadPatch = patch.length > 0;
+
+  const btnClass = (enabled: boolean) =>
+    `text-xs px-3 py-1.5 border rounded-md ${enabled ? "" : "opacity-50 cursor-not-allowed"}`;
+
   return (
     <div className="space-y-3 rounded-2xl bg-white p-3 shadow">
       <div className="text-sm font-medium">サマリ</div>
@@ -64,16 +71,18 @@ export default function Summary({
 
       <div className="flex gap-2">
         <button
-          className="rounded-md border px-3 py-1.5 text-xs"
-          onClick={() => downloadJson(collectDiffs(root), "diff-list.json")}
+          className={btnClass(canDownloadDiffs)}
+          onClick={() => downloadJson(diffs, "diff-list.json")}
+          disabled={!canDownloadDiffs}
         >
           差分一覧をダウンロード
         </button>
         <button
-          className="rounded-md border px-3 py-1.5 text-xs"
+          className={btnClass(canDownloadPatch)}
           onClick={() => downloadJson(patch, "patch.json")}
+          disabled={!canDownloadPatch}
         >
-          Patchをダウンロード
+          JSON Patch風をダウンロード
         </button>
       </div>
     </div>
