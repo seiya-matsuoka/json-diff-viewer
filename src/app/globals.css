@@ -21,3 +21,91 @@
 .badge-equal {
   @apply bg-diff-equal text-slate-700;
 }
+
+/* ボタン */
+.btn {
+  @apply inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-xs;
+}
+
+.btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-md px-2 py-1 text-xs text-slate-600 hover:text-slate-900;
+}
+
+/* データをセットするボタン */
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs text-white bg-sky-600 hover:bg-sky-700 border-transparent shadow-sm;
+}
+
+.btn-primary:disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
+
+/* 反映ボタン */
+.btn-indigo {
+  @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm text-white bg-indigo-600 hover:bg-indigo-700 border-transparent shadow-sm;
+}
+
+.btn-indigo:disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
+
+/* 外部APIガイドボタン */
+.btn-slate {
+  @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs text-white bg-slate-600 hover:bg-slate-700 border-transparent shadow-sm;
+}
+
+.btn-slate:disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
+
+
+
+/* カード & フォーム */
+.card {
+  @apply bg-white rounded-2xl shadow;
+}
+
+.card-header {
+  @apply flex items-center justify-between gap-2 border-b p-3;
+}
+
+.card-body {
+  @apply p-3;
+}
+
+.input {
+  @apply w-full rounded-md border px-3 py-2 text-xs;
+}
+
+.select {
+  @apply rounded-md border px-2 py-1 text-sm;
+}
+
+.textarea {
+  @apply w-full rounded-md border p-2 font-mono text-xs;
+}
+
+.toolbar {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+/* Diff行 */
+.row-equal {
+  @apply text-slate-600;
+}
+
+.row-changed {
+  @apply bg-yellow-50/40;
+}
+
+.row-added {
+  @apply bg-emerald-50/40;
+}
+
+.row-removed {
+  @apply bg-rose-50/40;
+}
