@@ -80,8 +80,19 @@ function Row({
   const onCopy = async () =>
     navigator.clipboard.writeText(n.path).catch(() => void 0);
 
+  const tone =
+    n.state === "equal"
+      ? "row-equal"
+      : n.state === "changed"
+        ? "row-changed"
+        : n.state === "added"
+          ? "row-added"
+          : "row-removed";
+
   return (
-    <div className="grid grid-cols-[18px_110px_1fr_auto] items-center gap-2 border-b px-2 py-1 hover:bg-slate-50">
+    <div
+      className={`grid grid-cols-[18px_110px_1fr_auto] items-center gap-2 border-b px-2 py-1 hover:bg-slate-50 ${tone}`}
+    >
       <div style={{ paddingLeft: depth * 12 }}>
         <Caret
           visible={hasChildren(n)}
@@ -95,17 +106,12 @@ function Row({
       <div className="min-w-0">
         <div className="break-all font-mono text-xs">{n.path}</div>
         {info && (
-          <div className="mt-0.5 break-all text-[11px] text-slate-600">
+          <div className="mt-0.5 break-all text-[11px] text-slate-700">
             {info}
           </div>
         )}
       </div>
-
-      <button
-        className="rounded-md border px-2 py-1 text-xs"
-        title="パスをコピー"
-        onClick={onCopy}
-      >
+      <button className="btn" title="パスをコピー" onClick={onCopy}>
         Copy
       </button>
     </div>
@@ -178,10 +184,10 @@ export default function DiffTree({
   };
 
   return (
-    <div className="rounded-2xl bg-white shadow">
-      <div className="flex items-center justify-end gap-2 border-b p-2">
+    <div className="card">
+      <div className="card-header justify-end gap-2">
         <button
-          className="rounded-md border px-2 py-1 text-xs"
+          className="btn"
           onClick={() => setAll(true)}
           title="すべて展開"
           disabled={!root}
@@ -189,7 +195,7 @@ export default function DiffTree({
           すべて展開
         </button>
         <button
-          className="rounded-md border px-2 py-1 text-xs"
+          className="btn"
           onClick={() => setAll(false)}
           title="すべて折りたたみ"
           disabled={!root}

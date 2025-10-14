@@ -59,31 +59,51 @@ export default function Summary({
   const canDownloadDiffs = diffs.length > 0;
   const canDownloadPatch = patch.length > 0;
 
-  const btnClass = (enabled: boolean) =>
-    `text-xs px-3 py-1.5 border rounded-md ${enabled ? "" : "opacity-50 cursor-not-allowed"}`;
-
   return (
-    <div className="space-y-3 rounded-2xl bg-white p-3 shadow">
-      <div className="text-sm font-medium">サマリ</div>
-      <div className="text-xs">
-        追加: {added} / 削除: {removed} / 変更: {changed}
-      </div>
+    <div className="card">
+      <div className="card-body space-y-3">
+        <div className="text-sm font-medium">サマリ</div>
 
-      <div className="flex gap-2">
-        <button
-          className={btnClass(canDownloadDiffs)}
-          onClick={() => downloadJson(diffs, "diff-list.json")}
-          disabled={!canDownloadDiffs}
-        >
-          差分一覧をダウンロード
-        </button>
-        <button
-          className={btnClass(canDownloadPatch)}
-          onClick={() => downloadJson(patch, "patch.json")}
-          disabled={!canDownloadPatch}
-        >
-          JSON Patch風をダウンロード
-        </button>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="card">
+            <div className="card-body py-2 text-center text-xs">
+              追加
+              <br />
+              <span className="text-base font-semibold">{added}</span>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-body py-2 text-center text-xs">
+              削除
+              <br />
+              <span className="text-base font-semibold">{removed}</span>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-body py-2 text-center text-xs">
+              変更
+              <br />
+              <span className="text-base font-semibold">{changed}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="toolbar">
+          <button
+            className="btn"
+            onClick={() => downloadJson(diffs, "diff-list.json")}
+            disabled={!canDownloadDiffs}
+          >
+            差分一覧をダウンロード
+          </button>
+          <button
+            className="btn"
+            onClick={() => downloadJson(patch, "patch.json")}
+            disabled={!canDownloadPatch}
+          >
+            Patchをダウンロード
+          </button>
+        </div>
       </div>
     </div>
   );

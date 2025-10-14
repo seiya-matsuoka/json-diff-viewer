@@ -25,47 +25,34 @@ export default function Page() {
 
   return (
     <main className="mx-auto max-w-screen-2xl space-y-6 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">JSON Diff Viewer</h1>
-        <a
-          className="text-sm underline"
-          href="https://github.com/seiya-matsuoka/json-diff-viewer"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="GitHub リポジトリを開く"
-        >
-          GitHub
-        </a>
+      <header className="flex items-center justify-between border-b pb-3">
+        <h1 className="text-lg font-semibold tracking-tight">
+          JSON Diff Viewer
+        </h1>
       </header>
 
       <Uploaders onLeft={setLeft} onRight={setRight} />
-
-      <Controls
-        showOnlyDiff={showOnlyDiff}
-        onToggleOnlyDiff={() => setShowOnlyDiff((v) => !v)}
-        epsilon={epsilon}
-        onEpsilon={setEpsilon}
-        keySort={keySort}
-        onKeySort={setKeySort}
-        onReset={() => {
-          setLeft(null);
-          setRight(null);
-        }}
-      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <section className="lg:col-span-3">
           <DiffTree root={root} showOnlyDiff={showOnlyDiff} />
         </section>
-        <aside className="lg:col-span-1">
+        <aside className="space-y-4 lg:col-span-1">
+          <Controls
+            showOnlyDiff={showOnlyDiff}
+            onToggleOnlyDiff={() => setShowOnlyDiff((v) => !v)}
+            epsilon={epsilon}
+            onEpsilon={setEpsilon}
+            keySort={keySort}
+            onKeySort={setKeySort}
+            onReset={() => {
+              setLeft(null);
+              setRight(null);
+            }}
+          />
           <Summary root={root} patch={patch} />
         </aside>
       </div>
-
-      <footer className="text-xs text-slate-500">
-        ε={epsilon} / キーソート={String(keySort)} / 差分のみ=
-        {String(showOnlyDiff)}
-      </footer>
     </main>
   );
 }

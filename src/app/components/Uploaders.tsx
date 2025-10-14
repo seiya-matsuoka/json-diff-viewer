@@ -120,71 +120,73 @@ function Panel({
   };
 
   return (
-    <div className="rounded-2xl bg-white p-3 shadow">
-      <div className="mb-2 flex items-center justify-between">
+    <div className="card">
+      <div className="card-header">
         <span className="text-sm font-medium">{label}</span>
         <button
-          className="text-xs underline"
+          className="btn-primary"
           onClick={loadSample}
           title="選択中のサンプルセットから読込"
         >
           サンプル読込
         </button>
       </div>
-
-      <div className="mb-2 flex gap-2">
-        <input
-          className="flex-1 rounded-md border px-2 py-1.5 text-xs"
-          placeholder="https://example.com/data.json"
-          value={s.url}
-          onChange={(e) =>
-            setS((p) => ({ ...p, url: e.target.value, fetchError: null }))
-          }
-        />
-        <button
-          className="rounded-md border px-2 py-1.5 text-xs"
-          onClick={fetchFromUrl}
-          disabled={!s.url || s.loading}
-        >
-          {s.loading ? "取得中…" : "URL取得"}
-        </button>
-      </div>
-      {s.lastLoadedUrl && (
-        <div className="mb-1 break-all text-[11px] text-slate-500">
-          取得元: {s.lastLoadedUrl}
+      <div className="card-body space-y-2">
+        <div className="toolbar">
+          <input
+            className="input flex-1"
+            placeholder="https://example.com/data.json"
+            value={s.url}
+            onChange={(e) =>
+              setS((p) => ({ ...p, url: e.target.value, fetchError: null }))
+            }
+          />
+          <button
+            className="btn-primary"
+            onClick={fetchFromUrl}
+            disabled={!s.url || s.loading}
+          >
+            {s.loading ? "取得中…" : "URL取得"}
+          </button>
         </div>
-      )}
-      {s.fetchError && (
-        <div className="mb-1 text-[11px] text-red-600">{s.fetchError}</div>
-      )}
 
-      <textarea
-        className="h-48 w-full rounded-md border p-2 font-mono text-xs"
-        value={s.text}
-        onChange={(e) =>
-          setS((p) => ({ ...p, text: e.target.value, parseError: null }))
-        }
-        placeholder='{"a":1}'
-      />
+        {s.lastLoadedUrl && (
+          <div className="break-all text-[11px] text-slate-500">
+            取得元: {s.lastLoadedUrl}
+          </div>
+        )}
+        {s.fetchError && (
+          <div className="text-[11px] text-rose-600">{s.fetchError}</div>
+        )}
 
-      {s.parseError && (
-        <div className="mt-1 text-[11px] text-red-600">{s.parseError}</div>
-      )}
-
-      <div className="mt-2 flex gap-2">
-        <button className="rounded-md border px-3 py-1.5" onClick={apply}>
-          反映
-        </button>
-        <input
-          type="file"
-          accept=".json,application/json"
-          onChange={async (e) => {
-            const f = e.target.files?.[0];
-            if (!f) return;
-            const t = await f.text();
-            setS((p) => ({ ...p, text: t, parseError: null }));
-          }}
+        <textarea
+          className="textarea h-48"
+          value={s.text}
+          onChange={(e) =>
+            setS((p) => ({ ...p, text: e.target.value, parseError: null }))
+          }
+          placeholder='{"a":1}'
         />
+        {s.parseError && (
+          <div className="text-[11px] text-rose-600">{s.parseError}</div>
+        )}
+
+        <div className="toolbar">
+          <input
+            className="ml-2 text-[11px]"
+            type="file"
+            accept=".json,application/json"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              const t = await f.text();
+              setS((p) => ({ ...p, text: t, parseError: null }));
+            }}
+          />
+          <button className="btn-indigo ml-auto mr-2" onClick={apply}>
+            反映
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -214,10 +216,11 @@ export default function Uploaders({
 
   // サンプルセット選択（1〜7）
   const [sampleId, setSampleId] = useState<number>(1);
-  const sampleDir = useMemo(
-    () => SAMPLE_SETS.find((x) => x.id === sampleId)?.dir ?? SAMPLE_SETS[0].dir,
-    [sampleId],
-  );
+  const sampleDir = useMemo(() => {
+    return (
+      SAMPLE_SETS.find((x) => x.id === sampleId)?.dir ?? SAMPLE_SETS[0].dir
+    );
+  }, [sampleId]);
 
   const [showGuide, setShowGuide] = useState(false);
 
@@ -245,37 +248,35 @@ export default function Uploaders({
   return (
     <>
       {/* 上部ツールバー：サンプル選択 + 一括読込 + 外部APIガイド */}
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <label className="text-xs text-slate-600">サンプルセット</label>
-        <select
-          className="rounded-md border px-2 py-1 text-sm"
-          value={sampleId}
-          onChange={(e) => setSampleId(Number(e.target.value))}
-        >
-          {SAMPLE_SETS.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-
-        <button
-          className="rounded-md border px-2 py-1 text-xs"
-          onClick={loadBothSamples}
-        >
-          サンプル両方読込
-        </button>
-
-        {hasGuide && (
-          <button
-            type="button"
-            onClick={() => setShowGuide(true)}
-            className="ml-auto rounded-md border px-2 py-1 text-xs text-slate-600 hover:text-slate-900"
-            title="取得が有効な外部API"
+      <div className="card">
+        <div className="card-body toolbar">
+          <label className="text-xs text-slate-600">サンプルセット</label>
+          <select
+            className="select"
+            value={sampleId}
+            onChange={(e) => setSampleId(Number(e.target.value))}
           >
-            取得が有効な外部API
+            {SAMPLE_SETS.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          <button className="btn-primary ml-2" onClick={loadBothSamples}>
+            サンプル両方読込
           </button>
-        )}
+
+          {hasGuide && (
+            <button
+              type="button"
+              onClick={() => setShowGuide(true)}
+              className="btn-slate ml-auto"
+              title="取得が有効な外部API"
+            >
+              取得が有効な外部API
+            </button>
+          )}
+        </div>
       </div>
 
       <ApiGuide
