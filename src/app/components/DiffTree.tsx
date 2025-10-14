@@ -22,12 +22,14 @@ function Row({ n }: { n: DiffNode }) {
           ? "badge badge-changed"
           : "badge badge-equal";
 
+  const isValue = n.type === "value";
+
   const info =
-    n.state === "changed"
+    isValue && n.state === "changed"
       ? `${stringifyShort((n as any).left)} → ${stringifyShort((n as any).right)}`
-      : n.state === "added"
+      : isValue && n.state === "added"
         ? `→ ${stringifyShort((n as any).right)}`
-        : n.state === "removed"
+        : isValue && n.state === "removed"
           ? `${stringifyShort((n as any).left)} →`
           : "";
 
