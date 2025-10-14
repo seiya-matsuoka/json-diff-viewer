@@ -1,0 +1,8 @@
+{
+  "user": {
+    "name": "Taro",
+    "age": 31,
+    "address": { "city": "Tokyo", "zip": "100-0002" }
+  },
+  "tags": ["a", "b", "c"]
+}
