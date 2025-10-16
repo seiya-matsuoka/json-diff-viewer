@@ -64,60 +64,62 @@ export default function Controls(p: Props) {
 
   return (
     <div className="card">
-      <div className="card-body toolbar">
-        {/* ε */}
-        <label className="grid gap-1">
-          <span className="text-[11px] text-slate-600">
-            誤差の許容範囲（ε）
-          </span>
-          <input
-            className="input w-44"
-            type="text"
-            inputMode="decimal"
-            placeholder="0 / 1e-6 / 0.001"
-            value={display}
-            onChange={(e) => onChangeText(e.target.value)}
-            onKeyDown={onKeyDown}
-            aria-label="誤差の許容範囲（ε）"
-          />
+      <div className="card-body flex items-start justify-between gap-4">
+        <div className="grid gap-3">
+          {/* 誤差の許容範囲（ε） */}
+          <label className="grid gap-1">
+            <span className="text-[11px] text-slate-600">
+              誤差の許容範囲（ε）
+            </span>
+            <input
+              className="input w-44"
+              type="text"
+              inputMode="decimal"
+              placeholder="0 / 1e-6 / 0.001"
+              value={display}
+              onChange={(e) => onChangeText(e.target.value)}
+              onKeyDown={onKeyDown}
+              aria-label="誤差の許容範囲（ε）"
+            />
 
-          <input
-            className="mt-1 w-56"
-            type="range"
-            min={-12}
-            max={0}
-            step={1}
-            value={expValue}
-            onChange={(e) => {
-              const exp = Number(e.target.value);
-              const next = exp <= -12 ? 1e-12 : Math.pow(10, exp);
-              p.onEpsilon(next);
-              setDisplay(String(next));
-            }}
-            disabled={p.epsilon === 0 && display === "0"}
-            title="指数（-12 〜 0）"
-          />
-        </label>
+            <input
+              className="mt-1 w-56"
+              type="range"
+              min={-12}
+              max={0}
+              step={1}
+              value={expValue}
+              onChange={(e) => {
+                const exp = Number(e.target.value);
+                const next = exp <= -12 ? 1e-12 : Math.pow(10, exp);
+                p.onEpsilon(next);
+                setDisplay(String(next));
+              }}
+              disabled={p.epsilon === 0 && display === "0"}
+              title="指数（-12 〜 0）"
+            />
+          </label>
 
-        <label className="inline-flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={p.keySort}
-            onChange={(e) => p.onKeySort(e.target.checked)}
-          />
-          <span className="text-sm">キーソート</span>
-        </label>
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={p.keySort}
+              onChange={(e) => p.onKeySort(e.target.checked)}
+            />
+            <span className="text-sm">キーソート</span>
+          </label>
 
-        <label className="inline-flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={p.showOnlyDiff}
-            onChange={p.onToggleOnlyDiff}
-          />
-          <span className="text-sm">差分のみ</span>
-        </label>
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={p.showOnlyDiff}
+              onChange={p.onToggleOnlyDiff}
+            />
+            <span className="text-sm">差分のみ</span>
+          </label>
+        </div>
 
-        <button className="btn ml-auto" onClick={p.onReset}>
+        <button className="btn self-start" onClick={p.onReset}>
           初期化
         </button>
       </div>
