@@ -25,23 +25,13 @@
 
 <table>
   <tr>
-    <td style="padding:6px;">
+    <td>
       <img src="docs/screenshot_1.png" alt="">
     </td>
   </tr>
   <tr>
-    <td style="padding:6px;">
+    <td>
       <img src="docs/screenshot_2.png" alt="">
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:6px;">
-      <img src="docs/screenshot_3.png" alt="">
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:6px;">
-      <img src="docs/screenshot_4.png" alt="">
     </td>
   </tr>
 </table>
