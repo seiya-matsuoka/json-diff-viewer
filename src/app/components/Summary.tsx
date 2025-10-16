@@ -90,14 +90,14 @@ export default function Summary({
 
         <div className="toolbar">
           <button
-            className="btn"
+            className="btn-download"
             onClick={() => downloadJson(diffs, "diff-list.json")}
             disabled={!canDownloadDiffs}
           >
             差分一覧をダウンロード
           </button>
           <button
-            className="btn"
+            className="btn-download"
             onClick={() => downloadJson(patch, "patch.json")}
             disabled={!canDownloadPatch}
           >

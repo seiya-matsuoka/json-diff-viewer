@@ -62,6 +62,14 @@
   @apply opacity-60 cursor-not-allowed;
 }
 
+/* ダウンロードボタン */
+.btn-download {
+  @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100 hover:border-orange-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-200 active:bg-orange-200;
+}
+
+.btn-download:disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
 
 
 /* カード & フォーム */
