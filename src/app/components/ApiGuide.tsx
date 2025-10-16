@@ -163,7 +163,7 @@ export default function ApiGuide({
                       </div>
                       <div className="flex flex-col gap-1">
                         <button
-                          className="btn-zinc"
+                          className="btn-api"
                           onClick={() => {
                             onSetBoth(p.leftUrl, p.rightUrl);
                             onClose();
@@ -173,7 +173,7 @@ export default function ApiGuide({
                           両方セット
                         </button>
                         <button
-                          className="btn-zinc"
+                          className="btn-api"
                           onClick={() => {
                             onSetLeft(p.leftUrl);
                             onClose();
@@ -183,7 +183,7 @@ export default function ApiGuide({
                           左にだけ
                         </button>
                         <button
-                          className="btn-zinc"
+                          className="btn-api"
                           onClick={() => {
                             onSetRight(p.rightUrl);
                             onClose();
@@ -228,7 +228,7 @@ export default function ApiGuide({
                     </div>
                     <div className="flex flex-col gap-1">
                       <button
-                        className="btn-zinc"
+                        className="btn-api"
                         onClick={() => {
                           onSetLeft(s.url);
                           onClose();
@@ -238,7 +238,7 @@ export default function ApiGuide({
                         左にセット
                       </button>
                       <button
-                        className="btn-zinc"
+                        className="btn-api"
                         onClick={() => {
                           onSetRight(s.url);
                           onClose();

@@ -36,29 +36,29 @@
 }
 
 /* データをセットするボタン */
-.btn-primary {
+.btn-load {
   @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs text-white bg-sky-600 hover:bg-sky-700 border-transparent shadow-sm;
 }
 
-.btn-primary:disabled {
+.btn-load:disabled {
   @apply opacity-60 cursor-not-allowed;
 }
 
 /* 反映ボタン */
-.btn-indigo {
+.btn-apply {
   @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm text-white bg-indigo-600 hover:bg-indigo-700 border-transparent shadow-sm;
 }
 
-.btn-indigo:disabled {
+.btn-apply:disabled {
   @apply opacity-60 cursor-not-allowed;
 }
 
 /* 外部APIガイドボタン */
-.btn-zinc {
+.btn-api {
   @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs text-white bg-zinc-500 hover:bg-zinc-600 border-transparent shadow-sm;
 }
 
-.btn-zinc:disabled {
+.btn-api:disabled {
   @apply opacity-60 cursor-not-allowed;
 }
 

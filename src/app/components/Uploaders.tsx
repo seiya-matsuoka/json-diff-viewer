@@ -124,7 +124,7 @@ function Panel({
       <div className="card-header">
         <span className="text-sm font-medium">{label}</span>
         <button
-          className="btn-primary"
+          className="btn-load"
           onClick={loadSample}
           title="選択中のサンプルセットから読込"
         >
@@ -142,7 +142,7 @@ function Panel({
             }
           />
           <button
-            className="btn-primary"
+            className="btn-load"
             onClick={fetchFromUrl}
             disabled={!s.url || s.loading}
           >
@@ -183,7 +183,7 @@ function Panel({
               setS((p) => ({ ...p, text: t, parseError: null }));
             }}
           />
-          <button className="btn-indigo ml-auto mr-2" onClick={apply}>
+          <button className="btn-apply ml-auto mr-2" onClick={apply}>
             反映
           </button>
         </div>
@@ -262,7 +262,7 @@ export default function Uploaders({
               </option>
             ))}
           </select>
-          <button className="btn-primary ml-2" onClick={loadBothSamples}>
+          <button className="btn-load ml-2" onClick={loadBothSamples}>
             サンプル両方読込
           </button>
 
@@ -270,7 +270,7 @@ export default function Uploaders({
             <button
               type="button"
               onClick={() => setShowGuide(true)}
-              className="btn-zinc ml-auto"
+              className="btn-api ml-auto"
               title="取得が有効な外部API"
             >
               取得が有効な外部API
